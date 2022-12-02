@@ -53,6 +53,7 @@ public:
 			return false;
 		}
 
+		//연결지향형 TCP, Overlapped I/O소켓 생성
 		mListenSocket = WSASocket(PF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
 
 		if (INVALID_SOCKET == mListenSocket) {
@@ -63,6 +64,8 @@ public:
 		return true;
 	}
 
+
+	//서버의 주소정보를 소켓과 연결시키고 접속 요청을 받기 위해 // 소켓을 등록하는 함수
 	bool BindandListen(int nBindPort) {
 		SOCKADDR_IN			stServerAddr;
 		stServerAddr.sin_family = AF_INET;
@@ -198,8 +201,134 @@ private:
 		return true;
 	}
 
+	bool SendMsg(stClientInfo* pClientInfo, char* msg, int nLen) {
+		DWORD dwRecvNumBytes = 0;
+
+		CopyMemory(pClientInfo->m_stSendOverlappedEx.m_szBuf, pMsg, nLen);
+
+		pClientInfo->m_stSendOverlappedEx.m_swaBuf.len = nLen;
+		pClientInfo->m_stSendOverlappedEx.m_swaBuf.buf = msg;
+		pClientInfo->m_stSendOverlappedEx.m_eOperation = IOOperation::SEND;
+
+		int nRet = WSASend(pClientInfo->m_socketClient,
+			&(pClientInfo->m_stSendOverlappedEx.m_swaBuf),
+			1,
+			&dwRecvNumBytes,
+			0,
+			(LPWSAOVERLAPPED) & (pClientInfo->m_stSendOverlappedEx.m_wsaOverlapped),
+			NULL);
+
+		if (nRet == SOCKET_ERROR && (WSAGetLastError() != WSA_IO_PENDING)) {
+			printf("[ERROR] : WSASend() Error");
+			return false;
+		}
+		return true;
+	}
 
 
+	void WorkerThread() {
+		stClientInfo* pClientInfo = NULL;
+
+		BOOL bSuccess = TRUE;
+
+		DWORD dwIoSize = 0;
+		LPOVERLAPPED IpOverLapped = NULL;
+
+		while (mIsWorkerRun) {
+			//////////////////////////////////////////////////////
+			//이 함수로 인해 쓰레드들은 WaitingThread Queue에
+			//대기 상태로 들어가게 된다.
+			//완료된 Overlapped I/O작업이 발생하면 IOCP Queue에서
+			//완료된 작업을 가져와 뒤 처리를 한다.
+			//그리고 PostQueuedCompletionStatus()함수에의해 사용자
+			//메세지가 도착되면 쓰레드를 종료한다.
+			//////////////////////////////////////////////////////
+			bSuccess = GetQueuedCompletionStatus(mIOCPHandle,
+				&dwIoSize,
+				(PULONG_PTR)&pClientInfo,
+				&IpOverLapped,
+				INFINITE);
+
+			if (TRUE == bSuccess && 0 == dwIoSize && NULL == IpOverLapped) {
+				mIsWorkerRun = false;
+				continue;
+			}
+			if (NULL == IpOverLapped) {
+				continue;
+			}
+
+
+			//클라이언트가 접속을 끊었을 떄
+			if (FALSE == bSuccess || (0 == dwIoSize && TRUE == bSuccess)) {
+				printf("socket(%d) close", (int)pClientInfo->m_socketClient);
+				CloseSocket(pClientInfo);
+				continue;
+			}
+
+			stOVerlappedEx* pOverlappedEx = (stOVerlappedEx*)IpOverLapped;//??
+
+			if (IOOperation::RECV == pOverlappedEx->m_eOperation) {
+				pOverlappedEx->m_szBuf[dwIoSize] = NULL;
+				printf("[수신] bytes : %d , msg : %s\n", dwIoSize, pOverlappedEx->m_szBuf);
+
+				SendMsg(pClientInfo, pOverlappedEx->m_szBuf, dwIoSize);
+				BindRecv(pClientInfo);
+			}
+			else if (IOOperation::SEND == pOverlappedEx->m_eOperation) {
+				printf("[송신] byte : %d, msg :%s\n", dwIoSize, pOverlappedEx->m_szBuf);
+			}
+
+			else {
+				printf("socket(%d)에서 예외사항 발생 \n", (int)pClientInfo->m_socketClient);
+			}
+		}
+	}
+
+	void AccepterThread() {
+		SOCKADDR_IN				stClientAddr;
+		int						nAddrLen = sizeof(SOCKADDR_IN);
+
+		while (mIsAcceptRun) {
+			stClientInfo* pClientInfo = GetEmptyClientInfo();
+			if (NULL == pClientInfo) {
+				printf("[Error] : client FULL");
+				return;
+			}
+
+			pClientInfo->m_socketClient = accept(mListenSocket, (SOCKADDR*)&stClientAddr, &nAddrLen);
+
+			if (INVALID_SOCKET == pClientInfo->m_socketClient) {
+				continue;
+			}
+			bool bRet = BindIOCompletionPort(pClientInfo);
+			if (false == bRet) {
+				return;
+			}
+
+			bRet = BindRecv(pClientInfo);
+			if (false == bRet) {
+				return;
+			}
+
+			char clientIP[32] = { 0, };
+			inet_ntop(AF_INET, &(stClientAddr.sin_addr), clientIP, 32 - 1);
+			printf("클라이언트 접속 : IP(%s) SOCKET(%d)\n", clientIP, (int)pClientInfo->m_socketClient);
+			++mClinetCnt;
+		}
+	}
+
+	void CloseSocket(stClientInfo* pClientInfo, bool bIsForce = false) {
+		struct linger stLinger = { 0,0 };
+
+		if (true == bIsForce) {
+			stLinger.l_onoff = 1;
+		}
+		shutdown(pClientInfo->m_socketClient, SD_BOTH);
+		setsockopt(pClientInfo->m_socketClient, SOL_SOCKET, SO_LINGER, (char*)&stLinger, sizeof(stLinger));
+		closesocket(pClientInfo->m_socketClient);
+
+		pClientInfo->m_socketClient = INVALID_SOCKET;
+	}
 	//클라이언트 정보 저장 구조체
 	std::vector<stClientInfo>			mClientInfos;
 
