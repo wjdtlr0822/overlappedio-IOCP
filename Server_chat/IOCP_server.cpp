@@ -1,11 +1,19 @@
-#include <Windows.h>
-#include <WinSock2.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include "IOCP_client.h";
 
+const UINT16 SERVER_PORT = 11021;
+const UINT16 MAX_CLIENT = 100;
 
-using namespace std;
 
 int main() {
-	printf("hello word");
+	IOCompletionPort ioCompletionport;
+
+	ioCompletionport.InitSocket();
+	ioCompletionport.BindandListen(SERVER_PORT);
+	ioCompletionport.startServer(MAX_CLIENT);
+
+	printf("아무거나 클릭");
+	getchar();
+
+	ioCompletionport.DestroyThread();
+	return 0;
 }

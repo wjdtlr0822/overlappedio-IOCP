@@ -103,8 +103,7 @@ public:
 		if (false == bRet) {
 			return false;
 		}
-
-		bRet = CreateAcceptThread();
+		bRet = CreateAccepterThread();
 		if (false == bRet) {
 			return false;
 		}
@@ -143,7 +142,7 @@ private:
 		unsigned int uiThreadId = 0;
 		//WaingThread Queue에 대기 상태로 넣을 쓰레드들 생성 권장되는 개수 : (cpu개수 * 2) + 1 
 		for (int i = 0; i < MAX_WORKRTHREAD; i++) {
-			mIOWorkerThreads.emplace_back([this]() {WorkerThread(); })
+			mIOWorkerThreads.emplace_back([this]() {WorkerThread(); });
 		}
 		printf("WorkerThread Start....\n");
 		return true;
@@ -151,7 +150,7 @@ private:
 
 	//accept요청을 처리하는 쓰레드 생성
 	bool CreateAccepterThread() {
-		mAccepterThread = std::thread([this]() {AccepterThread});
+		mAccepterThread = std::thread([this]() {AccepterThread(); });
 		printf("AccepterThread Start...\n");
 		return true;
 	}
@@ -329,6 +328,7 @@ private:
 
 		pClientInfo->m_socketClient = INVALID_SOCKET;
 	}
+
 	//클라이언트 정보 저장 구조체
 	std::vector<stClientInfo>			mClientInfos;
 
