@@ -1,73 +1,96 @@
 #include <stdio.h>
 #include<stdlib.h>
-#include <WinSock2.h>
+#include<cstring>
+#include<process.h>
+
+#include<WinSock2.h>
+#include <iostream>
+#pragma comment(lib,"ws2_32.lib")
+
+#define BUF_SIZE 1024
+#define NAME_LEN 20
 
 void ErrorHandling(const char* message);
 
-#pragma comment(lib,"ws2_32.lib")
+unsigned WINAPI SendMsg(void* arg);
+unsigned WINAPI RecvMsg(void* arg);
+
+char message[BUF_SIZE];
+char name[NAME_LEN]="CLIENT";
 
 int main() {
 	WSADATA wsa;
+	SOCKET hSock;
+	SOCKADDR_IN servAddr;
+	int strLen, readLen;
+	HANDLE hSendThread, hRecvThread;
+
 	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
 		ErrorHandling("WSAStartup() Error");
 	}
+	hSock = socket(PF_INET, SOCK_STREAM, 0);
 
-	SOCKET hSocket = WSASocket(PF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
-
-	if (hSocket == INVALID_SOCKET) {
+	if (INVALID_SOCKET == hSock) {
 		ErrorHandling("SOCKET() Error");
 	}
 
-	SOCKADDR_IN recvAddr;
-	recvAddr.sin_family = AF_INET;
-	recvAddr.sin_port = htons(8888);
-	recvAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+	memset(&servAddr, 0, sizeof(servAddr));
+	servAddr.sin_family = AF_INET;
+	servAddr.sin_port = htons(8888);
+	servAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
 
-	if (connect(hSocket, (SOCKADDR*)&recvAddr, sizeof(recvAddr)) == SOCKET_ERROR) {
+	if (SOCKET_ERROR == connect(hSock, (SOCKADDR*)&servAddr, sizeof(servAddr))) {
 		ErrorHandling("Connect() Error");
 	}
+	else {
+		std::cin.getline(name, NAME_LEN);
+		printf("Connected as CLIENT...\n");
+	}
 
-	WSAEVENT event = WSACreateEvent();
+	hSendThread = (HANDLE)_beginthreadex(NULL, 0, SendMsg, (void*)&hSock, 0, NULL);
+	hRecvThread = (HANDLE)_beginthreadex(NULL, 0, RecvMsg, (void*)&hSock, 0, NULL);
 
-	WSAOVERLAPPED overlapped;
-	memset(&overlapped, 0, sizeof(overlapped));
-	overlapped.hEvent = event;
+	WaitForSingleObject(hSendThread, INFINITE);
+	WaitForSingleObject(hRecvThread, INFINITE);
 
-	WSABUF dataBuf;
-	char message[1024] = { 0, };
-	int sendBytes = 0;
-	int recvBytes = 0;
-	int flags = 0;
+	closesocket(hSock);
+	WSACleanup();
+	return 0;
+
+}
+
+unsigned WINAPI SendMsg(void* arg) {
+	SOCKET hSock = *((SOCKET*)arg);
+	char fullMsg[NAME_LEN + BUF_SIZE];
 
 	while (1) {
-		flags = 0;
+		fgets(message, BUF_SIZE, stdin);
 
-		printf("send :");
-		scanf_s("%s", message);
+		if (!strcmp(message, "q\n") || !strcmp(message, "quit\n")) {
 
-		dataBuf.len = strlen(message);
-		dataBuf.buf = message;
-
-		if (WSASend(hSocket, &dataBuf, 1, (LPDWORD)&sendBytes, flags, &overlapped, NULL) == SOCKET_ERROR) {
-			if (WSAGetLastError() != WSA_IO_PENDING) {
-				ErrorHandling("WSASend() Error");
-			}
+			closesocket(hSock);
+			return 0;
 		}
-
-		WSAWaitForMultipleEvents(1, &event, TRUE, WSA_INFINITE, FALSE);
-		WSAGetOverlappedResult(hSocket, &overlapped, (LPDWORD)&sendBytes, FALSE, NULL);
-
-		printf("send byte : %d \n", sendBytes);
-
-		if (WSARecv(hSocket, &dataBuf, 1, (LPDWORD)&recvBytes, (LPDWORD)&flags, &overlapped, NULL) == SOCKET_ERROR) {
-			if (WSAGetLastError() != WSA_IO_PENDING) {
-				ErrorHandling("Recv() Error");
-			}
-		}
-		printf("Recv[%s]\n", dataBuf.buf);
+		sprintf_s(fullMsg, "%s : %s ",name,message);
+		send(hSock, fullMsg, strlen(fullMsg), 0);
 	}
-	closesocket(hSocket);
-	WSACleanup();
+	return 0;
+}
+
+unsigned WINAPI RecvMsg(void* arg) {
+	SOCKET hSock = *((SOCKET*)arg);
+	char fullMsg[NAME_LEN + BUF_SIZE];
+	int len;
+
+	while (1) {
+		len = recv(hSock, fullMsg, NAME_LEN + BUF_SIZE, 0);
+
+		if (-1 == len) {
+			return -1;
+		}
+		fullMsg[len] = '\0';
+		fputs(fullMsg, stdout);
+	}
 	return 0;
 }
 

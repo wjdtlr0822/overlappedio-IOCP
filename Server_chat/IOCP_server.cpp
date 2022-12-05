@@ -11,7 +11,7 @@ int main() {
 	ioCompletionport.BindandListen(SERVER_PORT);
 	ioCompletionport.startServer(MAX_CLIENT);
 
-	printf("아무거나 클릭");
+	printf("아무 키나 클릭");
 	getchar();
 
 	ioCompletionport.DestroyThread();
