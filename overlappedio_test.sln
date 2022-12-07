@@ -13,6 +13,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IOCP_기초", "IOCP_기초\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IOCP기초_클라이언트", "IOCP기초_클라이언트\IOCP기초_클라이언트.vcxproj", "{A441CBA6-BFD6-4B10-B165-C53E64371538}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Server_chat2", "IOCP_기초2\IOCP_기초2.vcxproj", "{7B693D67-9FD6-474D-B551-2D1177D6DF98}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -61,6 +63,14 @@ Global
 		{A441CBA6-BFD6-4B10-B165-C53E64371538}.Release|x64.Build.0 = Release|x64
 		{A441CBA6-BFD6-4B10-B165-C53E64371538}.Release|x86.ActiveCfg = Release|Win32
 		{A441CBA6-BFD6-4B10-B165-C53E64371538}.Release|x86.Build.0 = Release|Win32
+		{7B693D67-9FD6-474D-B551-2D1177D6DF98}.Debug|x64.ActiveCfg = Debug|x64
+		{7B693D67-9FD6-474D-B551-2D1177D6DF98}.Debug|x64.Build.0 = Debug|x64
+		{7B693D67-9FD6-474D-B551-2D1177D6DF98}.Debug|x86.ActiveCfg = Debug|Win32
+		{7B693D67-9FD6-474D-B551-2D1177D6DF98}.Debug|x86.Build.0 = Debug|Win32
+		{7B693D67-9FD6-474D-B551-2D1177D6DF98}.Release|x64.ActiveCfg = Release|x64
+		{7B693D67-9FD6-474D-B551-2D1177D6DF98}.Release|x64.Build.0 = Release|x64
+		{7B693D67-9FD6-474D-B551-2D1177D6DF98}.Release|x86.ActiveCfg = Release|Win32
+		{7B693D67-9FD6-474D-B551-2D1177D6DF98}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
