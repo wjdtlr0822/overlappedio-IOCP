@@ -17,3 +17,16 @@ int main() {
 	ioCompletionport.DestroyThread();
 	return 0;
 }
+
+
+//ioCompletionport º¯¼ö
+
+//vector<stClientInfo> mClientInfos;
+// SOCKET mListenSocket
+// int mClientCnt = 0;
+// vector<thread> mIOWorkerThreads;
+//thread mAccepterThread;
+//HANDLE mIOCPHANDLE;
+//bool mlsWorkerRun = true;
+//bool mlsAcceptRun = true;
+//char mSocketBuf[1024] = {0,};

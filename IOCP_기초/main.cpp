@@ -132,7 +132,8 @@ unsigned int __stdcall IOThreadFunc(void* CompletionIO) {
 				continue;
 			}
 
-			memset(&(ioInfo->overlapped), 0, sizeof(OVERLAPPED));
+//			memset(&(ioInfo->overlapped), 0, sizeof(OVERLAPPED));
+			ZeroMemory(&(ioInfo->overlapped), sizeof(OVERLAPPED));
 			ioInfo->wsaBuf.len = byteTrans;
 
 			//client list 순회하는 도중 list의 원소가 삭제되어서는 안되기 때문에 동기화

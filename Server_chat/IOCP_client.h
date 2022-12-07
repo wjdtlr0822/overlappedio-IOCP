@@ -89,10 +89,10 @@ public:
 
 	//접속 요청을 수락하고 메세지를 받아서 처리하는 함수
 	bool startServer(const UINT32 maxClientCount) {
-		CreateClient(maxClientCount);
+		CreateClient(maxClientCount); // vector에 maxClientCount개의 빈 값 생성
 
 		//CompletionPort객체 생성 요청을 한다.
-		mIOCPHandle = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, NULL, MAX_WORKRTHREAD);//?
+		mIOCPHandle = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, NULL, MAX_WORKRTHREAD);// iocp handle생성
 		if (mIOCPHandle == NULL) {
 			printf("[ERROR] CreateIoCompletionPort() ERROR %d\n", GetLastError());
 			return false;
@@ -172,7 +172,7 @@ private:
 	bool BindIOCompletionPort(stClientInfo* pClientInfo) {
 		//socket과 pClientInfo를 CompletionPort객체와 연결시킨다.
 		auto HIOCP = CreateIoCompletionPort((HANDLE)pClientInfo->m_socketClient,
-			mIOCPHandle, (ULONG_PTR)(pClientInfo), 0);
+			mIOCPHandle, (ULONG_PTR)(pClientInfo),0);
 
 		if (NULL == HIOCP || mIOCPHandle != HIOCP) {
 			printf("[ERROR] CreateIoCompletionPort() ERROR %d\n", GetLastError());
@@ -203,7 +203,7 @@ private:
 	bool SendMsg(stClientInfo* pClientInfo, char* msg, int nLen) {
 		DWORD dwRecvNumBytes = 0;
 
-		CopyMemory(pClientInfo->m_stSendOverlappedEx.m_szBuf, pMsg, nLen);
+		CopyMemory(pClientInfo->m_stSendOverlappedEx.m_szBuf, msg, nLen);
 
 		pClientInfo->m_stSendOverlappedEx.m_swaBuf.len = nLen;
 		pClientInfo->m_stSendOverlappedEx.m_swaBuf.buf = msg;
@@ -248,10 +248,12 @@ private:
 				&IpOverLapped,
 				INFINITE);
 
+			//사용자 쓰레드 종료 메세지 처리..
 			if (TRUE == bSuccess && 0 == dwIoSize && NULL == IpOverLapped) {
 				mIsWorkerRun = false;
 				continue;
 			}
+
 			if (NULL == IpOverLapped) {
 				continue;
 			}
@@ -264,19 +266,23 @@ private:
 				continue;
 			}
 
-			stOVerlappedEx* pOverlappedEx = (stOVerlappedEx*)IpOverLapped;//??
+			stOVerlappedEx* pOverlappedEx = (stOVerlappedEx*)IpOverLapped;
 
+
+			//overlapped i/o recv작업 결과 뒤 처리
 			if (IOOperation::RECV == pOverlappedEx->m_eOperation) {
 				pOverlappedEx->m_szBuf[dwIoSize] = NULL;
 				printf("[수신] bytes : %d , msg : %s\n", dwIoSize, pOverlappedEx->m_szBuf);
 
+				//클라이언트에 메세지를 에코한다.
 				SendMsg(pClientInfo, pOverlappedEx->m_szBuf, dwIoSize);
 				BindRecv(pClientInfo);
 			}
+			//overlapped i/o send작업 결과 뒤 처리
 			else if (IOOperation::SEND == pOverlappedEx->m_eOperation) {
 				printf("[송신] byte : %d, msg :%s\n", dwIoSize, pOverlappedEx->m_szBuf);
 			}
-
+			//Error
 			else {
 				printf("socket(%d)에서 예외사항 발생 \n", (int)pClientInfo->m_socketClient);
 			}
