@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <process.h>
 #include <WinSock2.h>
-
+#include <stdio.h>
 #pragma comment(lib,"ws2_32.lib")
 
 using namespace std;
@@ -55,6 +55,7 @@ unsigned WINAPI SendMSG(void* arg) {
 	while (1) {
 		fgets(buf, 1024, stdin);
 		send(hSock, buf, sizeof(buf), 0);
+		printf("size : %d\n", sizeof(buf));
 	}
 }
 
