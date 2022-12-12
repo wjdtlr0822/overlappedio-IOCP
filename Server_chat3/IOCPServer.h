@@ -190,18 +190,29 @@ private:
 		LPOVERLAPPED lpOverlapped = NULL;
 
 		while (mIsWorkerRun) {
-			bSuccess = GetQueuedCompletionStatus(mIOCPHandle, &dwIoSize, (PULONG_PTR)pClientInfo, &lpOverlapped, INFINITE);
 
-			if (TRUE == bSuccess && 0 == dwIoSize && NULL == lpOverlapped) {
+			bSuccess = GetQueuedCompletionStatus(mIOCPHandle,
+				&dwIoSize, 
+				(PULONG_PTR)&pClientInfo, 
+				&lpOverlapped, 
+				INFINITE);
+
+			if (TRUE == bSuccess && 0 == dwIoSize && NULL == lpOverlapped)
+			{
 				mIsWorkerRun = false;
+				printf("AWEF");
 				continue;
 			}
 
-			if (NULL == lpOverlapped) {
+			if (NULL == lpOverlapped)
+			{
+				printf("NULL\n");
 				continue;
 			}
 
-			if (FALSE == bSuccess || (TRUE == bSuccess && dwIoSize == 0)) {
+			if (FALSE == bSuccess || (0 == dwIoSize && TRUE == bSuccess))
+			{
+				printf("dwIoSize === 0 \n");
 				CloseSocket(pClientInfo);
 				continue;
 			}
@@ -209,6 +220,7 @@ private:
 			auto pOverlappedEx = (stOverlappedEx*)lpOverlapped;
 
 			if (IOOPeration::RECV == pOverlappedEx->m_eOperation) {
+				printf("수신!!!!\n");
 				OnReceive(pClientInfo->mIndex, dwIoSize, pClientInfo->mRecvBuf);
 				//pClientInfo->mRecvBuf[dwIoSize] = '\n';
 				//printf("[수신] bytes : %d , msg : %s\n",dwIoSize,pClientInfo->mRecvBuf);

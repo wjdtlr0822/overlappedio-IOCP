@@ -17,6 +17,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Server_chat2", "Server_chat
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Server_chat3", "Server_chat3\Server_chat3.vcxproj", "{CF4D19E7-BA54-49F2-9FCA-914C8A5B6797}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Server_chat4", "Server_chat4\Server_chat4.vcxproj", "{19F35FAC-9005-44B5-B6AA-02418B2B657C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -81,6 +83,14 @@ Global
 		{CF4D19E7-BA54-49F2-9FCA-914C8A5B6797}.Release|x64.Build.0 = Release|x64
 		{CF4D19E7-BA54-49F2-9FCA-914C8A5B6797}.Release|x86.ActiveCfg = Release|Win32
 		{CF4D19E7-BA54-49F2-9FCA-914C8A5B6797}.Release|x86.Build.0 = Release|Win32
+		{19F35FAC-9005-44B5-B6AA-02418B2B657C}.Debug|x64.ActiveCfg = Debug|x64
+		{19F35FAC-9005-44B5-B6AA-02418B2B657C}.Debug|x64.Build.0 = Debug|x64
+		{19F35FAC-9005-44B5-B6AA-02418B2B657C}.Debug|x86.ActiveCfg = Debug|Win32
+		{19F35FAC-9005-44B5-B6AA-02418B2B657C}.Debug|x86.Build.0 = Debug|Win32
+		{19F35FAC-9005-44B5-B6AA-02418B2B657C}.Release|x64.ActiveCfg = Release|x64
+		{19F35FAC-9005-44B5-B6AA-02418B2B657C}.Release|x64.Build.0 = Release|x64
+		{19F35FAC-9005-44B5-B6AA-02418B2B657C}.Release|x86.ActiveCfg = Release|Win32
+		{19F35FAC-9005-44B5-B6AA-02418B2B657C}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
