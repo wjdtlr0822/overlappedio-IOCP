@@ -1,5 +1,8 @@
 #pragma once
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 08bb5664c06f314e56c6554559fe05f6b204078e
 #pragma comment(lib,"ws2_32")
 
 #include "ClientInfo.h"
@@ -179,6 +182,10 @@ private:
 
 	//CompletionPort°´Ã¼ ÇÚµé
 	HANDLE		mIOCPHandle = INVALID_HANDLE_VALUE;
+<<<<<<< HEAD
 };
 =======
 >>>>>>> parent of c17f4be (server5..)
+=======
+};
+>>>>>>> 08bb5664c06f314e56c6554559fe05f6b204078e
