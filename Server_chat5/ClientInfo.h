@@ -3,7 +3,7 @@
 #include "Define.h"
 #include <stdio.h>
 #include <mutex>
-
+//
 class stClientInfo {
 public:
 	stClientInfo() {

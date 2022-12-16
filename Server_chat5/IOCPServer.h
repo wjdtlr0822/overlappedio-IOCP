@@ -132,7 +132,7 @@ private:
 		mSendThread = std::thread([this]() {SendThread(); });
 		printf("SendThread½ÃÀÛ\n");
 	}
-
+	//
 	stClientInfo* GetEmptyClientInfo() {
 		for (auto client : mClientInfos) {
 			if (client->IsConnectd() == false) {
