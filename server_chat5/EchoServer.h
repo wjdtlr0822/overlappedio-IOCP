@@ -7,6 +7,7 @@
 #include <deque>
 #include <thread>
 #include <mutex>
+#include <iostream>
 
 
 class EchoServer : public IOCPServer
@@ -18,17 +19,17 @@ public:
 
 	virtual void OnConnect(const UINT32 clientIndex_) override
 	{
-		printf("[OnConnect] 適虞戚情闘: Index(%d)\n", clientIndex_);
+		printf("[OnConnect] : Index(%d)\n", clientIndex_);
 	}
 
 	virtual void OnClose(const UINT32 clientIndex_) override
 	{
-		printf("[OnClose] 適虞戚情闘: Index(%d)\n", clientIndex_);
+		printf("[OnClose] : Index(%d)\n", clientIndex_);
 	}
 
 	virtual void OnReceive(const UINT32 clientIndex_, const UINT32 size_, char* pData_) override
 	{
-		printf("[OnReceive] 適虞戚情闘: Index(%d), dataSize(%d)\n", clientIndex_, size_);
+		printf("[OnReceive] : Index(%d), dataSize(%d)\n", clientIndex_, size_);
 
 		PacketData packet;
 		packet.Set(clientIndex_, size_, pData_);
