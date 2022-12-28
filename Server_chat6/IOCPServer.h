@@ -54,7 +54,8 @@ public:
 		return true;
 	}
 
-	bool StartServer(const UINT32 maxClientCount) {
+	bool StartServer(const UINT32 maxClientCount) 
+	{
 		CreateClient(maxClientCount);
 		mIOCPHandle = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, NULL, MAX_WORKERTHREAD);
 		if (NULL == mIOCPHandle)

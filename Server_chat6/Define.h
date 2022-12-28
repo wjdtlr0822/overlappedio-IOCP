@@ -17,4 +17,3 @@ struct stOverlappedEx {
 	WSABUF		  m_wsaBuf;
 	IOOperation	  m_eOperation;
 };
-
