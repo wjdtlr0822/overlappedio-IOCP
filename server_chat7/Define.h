@@ -6,10 +6,11 @@
 
 const UINT32 MAX_SOCK_RECVBUF = 256;
 const UINT32 MAX_SOCK_SENDBUF = 4096;
-const UINT32 RE_USE_SESSION_WAIT_TIMESEC = 3;
+const UINT64 RE_USE_SESSION_WAIT_TIMESEc = 3;
 
-
-enum class IOOPeration {
+enum class IOOperation
+{
+	ACCEPT,
 	RECV,
 	SEND
 };
@@ -17,6 +18,6 @@ enum class IOOPeration {
 struct stOverlappedEx {
 	WSAOVERLAPPED m_wsaOverlapped;
 	WSABUF m_wsaBuf;
-	IOOPeration m_eOperation;
+	IOOperation m_eOperation;
 	UINT32 SessionIndex = 0;
 };
